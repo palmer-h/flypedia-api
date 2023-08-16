@@ -2,6 +2,8 @@ import type { Request, Response, NextFunction } from 'express';
 import { FilterQuery, FindOptions, RequestContext } from '@mikro-orm/core';
 import { FlyType } from './flyType.entity.js';
 import ApiException from '../../core/ApiException.js';
+import { IndexPaginatedEntityResponse } from '../../core/types.js';
+import { Fly } from '../fly/fly.entity.js';
 
 export const indexFlyTypes = async (
     _req: Request,
@@ -87,4 +89,52 @@ export const deleteFlyType = async (req: Request, res: Response<string>, next: N
     }
 
     res.json('OK');
+};
+
+export const indexFliesByType = async (
+    req: Request,
+    res: Response<IndexPaginatedEntityResponse<Fly>>,
+    next: NextFunction,
+): Promise<void> => {
+    const em = RequestContext.getEntityManager();
+    const repository = em?.getRepository(FlyType);
+    const flyRepository = em?.getRepository(Fly);
+
+    const flyType = await repository?.findOne({ externalId: req.params.id });
+
+    if (!flyType) {
+        const error = new ApiException({ message: `Cannot find fly type using id: ${req.params.id}`, status: 409 });
+        return next(error);
+    }
+
+    const pageNumber = Number(req.query.pageNumber);
+    const pageSize = Number(req.query.pageSize);
+    const filterQuery: FilterQuery<Fly> = { types: flyType.id };
+    const findOptions: FindOptions<Fly> = {
+        offset: (pageNumber - 1) * pageSize,
+        limit: pageSize,
+        populate: ['types', 'imitatees'] as never,
+        orderBy: { name: 'ASC' },
+    };
+
+    const results = await flyRepository?.findAndCount(filterQuery, findOptions);
+
+    if (!results) {
+        const error = new ApiException({ message: 'Unable to fetch flies' });
+        return next(error);
+    }
+
+    const flies = results[0];
+    const totalItems = results[1];
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    res.json({
+        metadata: {
+            totalItems,
+            pageNumber,
+            pageSize,
+            totalPages,
+        },
+        results: flies,
+    });
 };
