@@ -1,6 +1,13 @@
 import { Router } from 'express';
 import * as validationChains from './flyType.validation.js';
-import { createFlyType, deleteFlyType, getFlyType, indexFlyTypes, updateFlyType } from './flyType.controller.js';
+import {
+    createFlyType,
+    deleteFlyType,
+    getFlyType,
+    indexFlyTypes,
+    updateFlyType,
+    indexFliesByType,
+} from './flyType.controller.js';
 import validate from '../../middleware/validate.js';
 import authenticate from '../../middleware/authenticate.js';
 
@@ -11,5 +18,6 @@ router.route('/').post(authenticate, validate(validationChains.create), createFl
 router.route('/:id').get(validate(validationChains.get), getFlyType);
 router.route('/:id').put(authenticate, validate(validationChains.update), updateFlyType);
 router.route('/:id').delete(authenticate, validate(validationChains.remove), deleteFlyType);
+router.route('/:id/flies').get(validate(validationChains.indexFlies), indexFliesByType);
 
 export { router };
