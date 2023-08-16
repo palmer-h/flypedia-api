@@ -8,11 +8,16 @@ const config: Options = {
     entities: ['./dist/**/*.entity.js'],
     entitiesTs: ['./src/**/*.entity.ts'],
     debug: true,
-    driverOptions: {
-        connection: {
-            ssl: true,
-        },
-    },
 };
+
+if (process.env.NODE_ENV === 'production') {
+    config.driverOptions = {
+        connection: {
+            ssl: {
+                rejectUnauthorized: false,
+            },
+        },
+    };
+}
 
 export default config;
