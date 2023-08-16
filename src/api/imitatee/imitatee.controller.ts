@@ -3,6 +3,7 @@ import { FilterQuery, FindOptions, RequestContext } from '@mikro-orm/core';
 import { Imitatee } from './imitatee.entity.js';
 import ApiException from '../../core/ApiException.js';
 import { IndexPaginatedEntityResponse } from '../../core/types.js';
+import { Fly } from '../fly/fly.entity.js';
 
 export const indexImitatees = async (
     req: Request,
@@ -103,4 +104,52 @@ export const deleteImitatee = async (req: Request, res: Response<string>, next: 
     }
 
     res.json('OK');
+};
+
+export const indexFliesByImitatee = async (
+    req: Request,
+    res: Response<IndexPaginatedEntityResponse<Fly>>,
+    next: NextFunction,
+): Promise<void> => {
+    const em = RequestContext.getEntityManager();
+    const repository = em?.getRepository(Imitatee);
+    const flyRepository = em?.getRepository(Fly);
+
+    const imitatee = await repository?.findOne({ externalId: req.params.id });
+
+    if (!imitatee) {
+        const error = new ApiException({ message: `Cannot find imitatee using id: ${req.params.id}`, status: 409 });
+        return next(error);
+    }
+
+    const pageNumber = Number(req.query.pageNumber);
+    const pageSize = Number(req.query.pageSize);
+    const filterQuery: FilterQuery<Fly> = { types: imitatee.id };
+    const findOptions: FindOptions<Fly> = {
+        offset: (pageNumber - 1) * pageSize,
+        limit: pageSize,
+        populate: ['types', 'imitatees'] as never,
+        orderBy: { name: 'ASC' },
+    };
+
+    const results = await flyRepository?.findAndCount(filterQuery, findOptions);
+
+    if (!results) {
+        const error = new ApiException({ message: 'Unable to fetch flies' });
+        return next(error);
+    }
+
+    const flies = results[0];
+    const totalItems = results[1];
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    res.json({
+        metadata: {
+            totalItems,
+            pageNumber,
+            pageSize,
+            totalPages,
+        },
+        results: flies,
+    });
 };
