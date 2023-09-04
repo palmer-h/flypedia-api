@@ -13,7 +13,7 @@ const router: Router = Router();
 router.use('/api/v1/auth', authRoutes);
 router.use('/api/v1/users', userRoutes);
 router.use('/api/v1/flies', flyRoutes);
-router.use('/api/v1/fly-types', flyTypeRoutes);
+router.use('/api/v1/flyTypes', flyTypeRoutes);
 router.use('/api/v1/imitatees', imitateeRoutes);
 
 router.use((_req: Request, res: Response): void => {
