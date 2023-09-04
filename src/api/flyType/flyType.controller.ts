@@ -4,16 +4,23 @@ import { FlyType } from './flyType.entity.js';
 import ApiException from '../../core/ApiException.js';
 import { IndexPaginatedEntityResponse } from '../../core/types.js';
 import { Fly } from '../fly/fly.entity.js';
+import { mapEntityDbModelToResourceModel } from '../../core/utils.js';
+import { FlyTypeResourceModel } from './flyType.types.js';
+import { FlyResourceModel } from '../fly/fly.types.js';
 
 export const indexFlyTypes = async (
-    _req: Request,
-    res: Response<{ results: Array<FlyType> }>,
+    req: Request,
+    res: Response<IndexPaginatedEntityResponse<FlyTypeResourceModel>>,
     next: NextFunction,
 ): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(FlyType);
+    const pageNumber = Number(req.query.pageNumber);
+    const pageSize = Number(req.query.pageSize);
     const filterQuery: FilterQuery<FlyType> = {};
     const findOptions: FindOptions<FlyType> = {
+        offset: (pageNumber - 1) * pageSize,
+        limit: pageSize,
         orderBy: { name: 'ASC' },
     };
 
@@ -25,11 +32,26 @@ export const indexFlyTypes = async (
     }
 
     const flyTypes = results[0];
+    const totalItems = results[1];
+    const totalPages = Math.ceil(totalItems / pageSize);
 
-    res.json({ results: flyTypes });
+    res.setHeader('Content-Range', `bytes 0-${totalItems}/*`);
+    res.json({
+        metadata: {
+            totalItems,
+            pageNumber,
+            pageSize,
+            totalPages,
+        },
+        results: flyTypes.map((x) => mapEntityDbModelToResourceModel(x)),
+    });
 };
 
-export const getFlyType = async (req: Request, res: Response<FlyType>, next: NextFunction): Promise<void> => {
+export const getFlyType = async (
+    req: Request,
+    res: Response<FlyTypeResourceModel>,
+    next: NextFunction,
+): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(FlyType);
     const result = await repository?.findOne({ externalId: req.params.id });
@@ -39,14 +61,10 @@ export const getFlyType = async (req: Request, res: Response<FlyType>, next: Nex
         return next(error);
     }
 
-    res.json(result);
+    res.json(mapEntityDbModelToResourceModel(result));
 };
 
-export const createFlyType = async (
-    req: Request,
-    res: Response<FlyType['externalId']>,
-    next: NextFunction,
-): Promise<void> => {
+export const createFlyType = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(FlyType);
     const exists = await repository?.exists(req.body.name);
@@ -62,7 +80,11 @@ export const createFlyType = async (
     res.json(flyType.externalId);
 };
 
-export const updateFlyType = async (req: Request, res: Response<FlyType>, next: NextFunction): Promise<void> => {
+export const updateFlyType = async (
+    req: Request,
+    res: Response<FlyTypeResourceModel>,
+    next: NextFunction,
+): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(FlyType);
     const flyType = await repository?.findOne({ externalId: req.params.id });
@@ -75,7 +97,7 @@ export const updateFlyType = async (req: Request, res: Response<FlyType>, next: 
     flyType.name = req.body.name;
 
     await em?.flush();
-    res.json(flyType);
+    res.json(mapEntityDbModelToResourceModel(flyType));
 };
 
 export const deleteFlyType = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
@@ -93,7 +115,7 @@ export const deleteFlyType = async (req: Request, res: Response<string>, next: N
 
 export const indexFliesByType = async (
     req: Request,
-    res: Response<IndexPaginatedEntityResponse<Fly>>,
+    res: Response<IndexPaginatedEntityResponse<FlyResourceModel>>,
     next: NextFunction,
 ): Promise<void> => {
     const em = RequestContext.getEntityManager();
@@ -128,6 +150,7 @@ export const indexFliesByType = async (
     const totalItems = results[1];
     const totalPages = Math.ceil(totalItems / pageSize);
 
+    res.setHeader('Content-Range', `bytes 0-${totalItems}/*`);
     res.json({
         metadata: {
             totalItems,
@@ -135,6 +158,6 @@ export const indexFliesByType = async (
             pageSize,
             totalPages,
         },
-        results: flies,
+        results: flies.map((x) => mapEntityDbModelToResourceModel(x)),
     });
 };
