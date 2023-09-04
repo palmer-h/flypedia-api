@@ -1,10 +1,11 @@
-import { FilterQuery, FindOptions, RequestContext } from '@mikro-orm/core';
+import { FilterQuery, FindOptions, Reference, RequestContext } from '@mikro-orm/core';
 import type { Request, Response, NextFunction } from 'express';
 import { Fly } from './fly.entity.js';
 import ApiException from '../../core/ApiException.js';
 import { IndexPaginatedEntityResponse } from '../../core/types.js';
 import { Imitatee } from '../imitatee/imitatee.entity.js';
 import { FlyType } from '../flyType/flyType.entity.js';
+import { wrap } from 'module';
 
 export const indexFlies = async (
     req: Request,
@@ -34,7 +35,6 @@ export const indexFlies = async (
     const totalItems = results[1];
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    res.setHeader('Content-Range', `bytes 0-${totalItems}/*`);
     res.json({
         metadata: {
             totalItems,
