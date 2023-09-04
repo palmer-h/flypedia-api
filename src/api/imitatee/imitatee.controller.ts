@@ -4,24 +4,26 @@ import { Imitatee } from './imitatee.entity.js';
 import ApiException from '../../core/ApiException.js';
 import { IndexPaginatedEntityResponse } from '../../core/types.js';
 import { Fly } from '../fly/fly.entity.js';
+import { ImitateeResourceModel } from './imitatee.types.js';
+import { FlyResourceModel } from '../fly/fly.types.js';
+import { mapEntityDbModelToResourceModel } from '../../core/utils.js';
 
 export const indexImitatees = async (
     req: Request,
-    res: Response<IndexPaginatedEntityResponse<Imitatee>>,
+    res: Response<IndexPaginatedEntityResponse<ImitateeResourceModel>>,
     next: NextFunction,
 ): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
     const pageNumber = Number(req.query.pageNumber);
     const pageSize = Number(req.query.pageSize);
-    const filterQuery: FilterQuery<Imitatee> = {};
     const findOptions: FindOptions<Imitatee> = {
         offset: (pageNumber - 1) * pageSize,
         limit: pageSize,
         orderBy: { name: 'ASC' },
     };
 
-    const results = await repository?.findAndCount(filterQuery, findOptions);
+    const results = await repository?.findAndCount({}, findOptions);
 
     if (!results) {
         const error = new ApiException({ message: 'Unable to fetch imitatees' });
@@ -39,11 +41,15 @@ export const indexImitatees = async (
             pageSize,
             totalPages,
         },
-        results: imitatees,
+        results: imitatees.map((x) => mapEntityDbModelToResourceModel(x)),
     });
 };
 
-export const getImitatee = async (req: Request, res: Response<Imitatee>, next: NextFunction): Promise<void> => {
+export const getImitatee = async (
+    req: Request,
+    res: Response<ImitateeResourceModel>,
+    next: NextFunction,
+): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
     const result = await repository?.findOne({ externalId: req.params.id });
@@ -53,14 +59,10 @@ export const getImitatee = async (req: Request, res: Response<Imitatee>, next: N
         return next(error);
     }
 
-    res.json(result);
+    res.json(mapEntityDbModelToResourceModel(result));
 };
 
-export const createImitatee = async (
-    req: Request,
-    res: Response<Imitatee['externalId']>,
-    next: NextFunction,
-): Promise<void> => {
+export const createImitatee = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
     const exists = await repository?.exists(req.body.name);
@@ -76,7 +78,11 @@ export const createImitatee = async (
     res.json(imitatee.externalId);
 };
 
-export const updateImitatee = async (req: Request, res: Response<Imitatee>, next: NextFunction): Promise<void> => {
+export const updateImitatee = async (
+    req: Request,
+    res: Response<ImitateeResourceModel>,
+    next: NextFunction,
+): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
     const imitatee = await repository?.findOne({ externalId: req.params.id });
@@ -90,7 +96,7 @@ export const updateImitatee = async (req: Request, res: Response<Imitatee>, next
     imitatee.description = req.body.description;
 
     await em?.flush();
-    res.json(imitatee);
+    res.json(mapEntityDbModelToResourceModel(imitatee));
 };
 
 export const deleteImitatee = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
@@ -108,7 +114,7 @@ export const deleteImitatee = async (req: Request, res: Response<string>, next: 
 
 export const indexFliesByImitatee = async (
     req: Request,
-    res: Response<IndexPaginatedEntityResponse<Fly>>,
+    res: Response<IndexPaginatedEntityResponse<FlyResourceModel>>,
     next: NextFunction,
 ): Promise<void> => {
     const em = RequestContext.getEntityManager();
@@ -150,6 +156,6 @@ export const indexFliesByImitatee = async (
             pageSize,
             totalPages,
         },
-        results: flies,
+        results: flies.map((x) => mapEntityDbModelToResourceModel(x)),
     });
 };
