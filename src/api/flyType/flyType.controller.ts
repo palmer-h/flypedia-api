@@ -6,18 +6,14 @@ import { IndexPaginatedEntityResponse } from '../../core/types.js';
 import { Fly } from '../fly/fly.entity.js';
 
 export const indexFlyTypes = async (
-    req: Request,
-    res: Response<IndexPaginatedEntityResponse<FlyType>>,
+    _req: Request,
+    res: Response<{ results: Array<FlyType> }>,
     next: NextFunction,
 ): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(FlyType);
-    const pageNumber = Number(req.query.pageNumber);
-    const pageSize = Number(req.query.pageSize);
     const filterQuery: FilterQuery<FlyType> = {};
     const findOptions: FindOptions<FlyType> = {
-        offset: (pageNumber - 1) * pageSize,
-        limit: pageSize,
         orderBy: { name: 'ASC' },
     };
 
@@ -29,19 +25,8 @@ export const indexFlyTypes = async (
     }
 
     const flyTypes = results[0];
-    const totalItems = results[1];
-    const totalPages = Math.ceil(totalItems / pageSize);
 
-    res.setHeader('Content-Range', `bytes 0-${totalItems}/*`);
-    res.json({
-        metadata: {
-            totalItems,
-            pageNumber,
-            pageSize,
-            totalPages,
-        },
-        results: flyTypes,
-    });
+    res.json({ results: flyTypes });
 };
 
 export const getFlyType = async (req: Request, res: Response<FlyType>, next: NextFunction): Promise<void> => {

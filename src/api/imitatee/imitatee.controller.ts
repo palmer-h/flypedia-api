@@ -143,7 +143,6 @@ export const indexFliesByImitatee = async (
     const totalItems = results[1];
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    res.setHeader('Content-Range', `bytes 0-${totalItems}/*`);
     res.json({
         metadata: {
             totalItems,
