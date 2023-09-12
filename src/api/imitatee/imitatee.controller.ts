@@ -5,8 +5,8 @@ import ApiException from '../../core/ApiException.js';
 import { IndexPaginatedEntityResponse } from '../../core/types.js';
 import { Fly } from '../fly/fly.entity.js';
 import { ImitateeResourceModel } from './imitatee.types.js';
-import { FlyResourceModel } from '../fly/fly.types.js';
 import { mapEntityDbModelToResourceModel } from '../../core/utils.js';
+import { FlyResourceModel } from '../fly/fly.types.js';
 
 export const indexImitatees = async (
     req: Request,
@@ -113,11 +113,7 @@ export const deleteImitatee = async (req: Request, res: Response<string>, next: 
     res.json('OK');
 };
 
-export const indexFliesByImitatee = async (
-    req: Request,
-    res: Response<IndexPaginatedEntityResponse<FlyResourceModel>>,
-    next: NextFunction,
-): Promise<void> => {
+export const indexFliesByImitatee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
     const flyRepository = em?.getRepository(Fly);
@@ -150,6 +146,16 @@ export const indexFliesByImitatee = async (
     const totalItems = results[1];
     const totalPages = Math.ceil(totalItems / pageSize);
 
+    const mappedResults: Array<FlyResourceModel> = flies.map((x) => {
+        const { externalId: _externalId, id: _id, ...entityModel } = x;
+        return {
+            ...entityModel,
+            id: x.externalId,
+            imitatees: x.imitatees.toArray().map(mapEntityDbModelToResourceModel),
+            types: x.types.toArray().map(mapEntityDbModelToResourceModel),
+        };
+    });
+
     res.setHeader('Content-Range', `bytes 0-${totalItems}/*`);
     res.json({
         metadata: {
@@ -158,6 +164,6 @@ export const indexFliesByImitatee = async (
             pageSize,
             totalPages,
         },
-        results: flies.map((x) => mapEntityDbModelToResourceModel(x)),
+        results: mappedResults,
     });
 };
