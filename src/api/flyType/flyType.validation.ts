@@ -10,11 +10,15 @@ export const index = <Array<ValidationChain>>[
 
 export const get = <Array<ValidationChain>>[commonValidation.id(param('id'), subject)];
 
-export const create = <Array<ValidationChain>>[commonValidation.name(body('name'), subject)];
+export const create = <Array<ValidationChain>>[
+    commonValidation.name(body('name'), subject),
+    commonValidation.description(body('description'), subject),
+];
 
 export const update = <Array<ValidationChain>>[
     commonValidation.id(param('id'), subject),
     commonValidation.name(body('name'), subject),
+    commonValidation.description(body('description'), subject),
 ];
 
 export const remove = <Array<ValidationChain>>[commonValidation.id(param('id'))];
