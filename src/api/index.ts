@@ -32,6 +32,9 @@ router.use((_req: Request, res: Response): void => {
 router.use((error: ApiException, _req: Request, res: Response<ApiErrorResponse>, _next: NextFunction): void => {
     const status: number = error.status || 500;
     res.status(status);
+    if (error.tokenExpired) {
+        res.set('access-token-expired', 'true');
+    }
     const response = {
         error: true,
         message: error?.message || 'Error',
