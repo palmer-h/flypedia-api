@@ -15,7 +15,7 @@ export default (req: Request, _res: Response, next: NextFunction) => {
 
     const token = authHeader.substring(7, authHeader.length);
     if (!token?.length) {
-        const error = new ApiException({ message: 'Invalid access token', status: 401 });
+        const error = new ApiException({ message: 'Invalid access token', status: 401, tokenExpired: true });
         next(error);
     }
 
