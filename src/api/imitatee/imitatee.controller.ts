@@ -113,7 +113,11 @@ export const deleteImitatee = async (req: Request, res: Response<string>, next: 
     res.json('OK');
 };
 
-export const indexFliesByImitatee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const indexFliesByImitatee = async (
+    req: Request,
+    res: Response<IndexPaginatedEntityResponse<FlyResourceModel>>,
+    next: NextFunction,
+): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
     const flyRepository = em?.getRepository(Fly);

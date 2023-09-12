@@ -1,4 +1,4 @@
-import { BaseEntityResourceModel } from '~/src/core/types.js';
+import { BaseEntityResourceModel } from '../../api/common/base.types.js';
 import { Fly } from './fly.entity.js';
 import { EntityDTO } from '@mikro-orm/core';
 import { Imitatee } from '../imitatee/imitatee.entity.js';
