@@ -95,6 +95,7 @@ export const updateFlyType = async (
     }
 
     flyType.name = req.body.name;
+    flyType.description = req.body.description;
 
     await em?.flush();
     res.json(mapEntityDbModelToResourceModel(flyType));
