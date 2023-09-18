@@ -16,7 +16,7 @@
     "lint-fix": "eslint src/**/*.ts --fix"
   },
   "dependencies": {
-    "@mikro-orm/cli": "^5.7.13",
+    "@mikro-orm/cli": "^5.8.1",
     "@mikro-orm/core": "^5.7.13",
     "@mikro-orm/postgresql": "^5.7.13",
     "@mikro-orm/reflection": "^5.7.13",
