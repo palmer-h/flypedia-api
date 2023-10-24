@@ -20,7 +20,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
     if (!isValidPassword) {
         const error = new ApiException({ message: 'Unable to authenticate user', status: 401 });
-        return next(error);
+        next(error);
     }
 
     const accessToken = authService.createUserAccessToken(user.id);

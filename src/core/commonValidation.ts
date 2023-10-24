@@ -51,7 +51,7 @@ export const name = (body: ValidationChain, subject?: string): ValidationChain =
             `${subject ? subject + ' name' : 'Name'}
             must only contain alphabetical characters`,
         )
-        .isLength({ min: 3, max: 64 })
+        .isLength({ min: 3, max: 32 })
         .withMessage(
             `${subject ? subject + ' name' : 'Name'}
             must be between 3 and 32 characters`,
@@ -71,10 +71,10 @@ export const description = (body: ValidationChain, subject?: string): Validation
             must be a string`,
         )
         .trim()
-        .isLength({ min: 10, max: 256 })
+        .isLength({ min: 10, max: 100 })
         .withMessage(
             `${subject ? subject + ' description' : 'Description'}
-            must be between 10 and 256 characters`,
+            must be between 10 and 100 characters`,
         );
 };
 
@@ -85,7 +85,7 @@ export const pageNumber = (query: ValidationChain): ValidationChain => {
         .isNumeric()
         .withMessage('Page number must be numeric')
         .trim()
-        .isLength({ min: 1 })
+        .isLength({ min: 1, max: 100 })
         .withMessage('Page number must be between 1 and 100');
 };
 
@@ -96,7 +96,7 @@ export const pageSize = (query: ValidationChain): ValidationChain => {
         .isNumeric()
         .withMessage('Page size must be numeric')
         .trim()
-        .isLength({ min: 1 })
+        .isLength({ min: 1, max: 100 })
         .withMessage('Page size must be between 1 and 100');
 };
 
