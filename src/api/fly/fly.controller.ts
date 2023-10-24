@@ -1,22 +1,22 @@
-import { FindOptions, RequestContext } from '@mikro-orm/core';
+import { FilterQuery, FindOptions, Reference, RequestContext } from '@mikro-orm/core';
 import type { Request, Response, NextFunction } from 'express';
 import { Fly } from './fly.entity.js';
 import ApiException from '../../core/ApiException.js';
 import { IndexPaginatedEntityResponse } from '../../core/types.js';
 import { Imitatee } from '../imitatee/imitatee.entity.js';
 import { FlyType } from '../flyType/flyType.entity.js';
-import { FlyResourceModel } from './fly.types.js';
-import { mapEntityDbModelToResourceModel } from '../../core/utils.js';
+import { wrap } from 'module';
 
 export const indexFlies = async (
     req: Request,
-    res: Response<IndexPaginatedEntityResponse<FlyResourceModel>>,
+    res: Response<IndexPaginatedEntityResponse<Fly>>,
     next: NextFunction,
 ): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Fly);
     const pageNumber = Number(req.query.pageNumber);
     const pageSize = Number(req.query.pageSize);
+    const filterQuery: FilterQuery<Fly> = {};
     const findOptions: FindOptions<Fly> = {
         offset: (pageNumber - 1) * pageSize,
         limit: pageSize,
@@ -24,7 +24,7 @@ export const indexFlies = async (
         orderBy: { name: 'ASC' },
     };
 
-    const results = await repository?.findAndCount({}, findOptions);
+    const results = await repository?.findAndCount(filterQuery, findOptions);
 
     if (!results) {
         const error = new ApiException({ message: 'Unable to fetch flies' });
@@ -35,17 +35,6 @@ export const indexFlies = async (
     const totalItems = results[1];
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    const mappedResults: Array<FlyResourceModel> = flies.map((x) => {
-        const { externalId: _externalId, id: _id, ...entityModel } = x;
-        return {
-            ...entityModel,
-            id: x.externalId,
-            imitatees: x.imitatees.toArray().map(mapEntityDbModelToResourceModel),
-            types: x.types.toArray().map(mapEntityDbModelToResourceModel),
-        };
-    });
-
-    res.setHeader('Content-Range', `bytes 0-${totalItems}/*`);
     res.json({
         metadata: {
             totalItems,
@@ -53,11 +42,11 @@ export const indexFlies = async (
             pageSize,
             totalPages,
         },
-        results: mappedResults,
+        results: flies,
     });
 };
 
-export const getFly = async (req: Request, res: Response<FlyResourceModel>, next: NextFunction): Promise<void> => {
+export const getFly = async (req: Request, res: Response<Fly>, next: NextFunction): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Fly);
     const result = await repository?.findOne({ externalId: req.params.id }, { populate: ['types', 'imitatees'] });
@@ -67,18 +56,10 @@ export const getFly = async (req: Request, res: Response<FlyResourceModel>, next
         return next(error);
     }
 
-    const { externalId: _externalId, id: _id, ...mappedResult } = result;
-    const response: FlyResourceModel = {
-        ...mappedResult,
-        id: result.externalId,
-        imitatees: result.imitatees.toArray().map(mapEntityDbModelToResourceModel),
-        types: result.types.toArray().map(mapEntityDbModelToResourceModel),
-    };
-
-    res.json(response);
+    res.json(result);
 };
 
-export const createFly = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
+export const createFly = async (req: Request, res: Response<Fly['externalId']>, next: NextFunction): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Fly);
     const flyTypeRepository = em?.getRepository(FlyType);
@@ -132,7 +113,7 @@ export const createFly = async (req: Request, res: Response<string>, next: NextF
     res.json(fly.externalId);
 };
 
-export const updateFly = async (req: Request, res: Response<FlyResourceModel>, next: NextFunction): Promise<void> => {
+export const updateFly = async (req: Request, res: Response<Fly>, next: NextFunction): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Fly);
     const flyTypeRepository = em?.getRepository(FlyType);
@@ -186,16 +167,7 @@ export const updateFly = async (req: Request, res: Response<FlyResourceModel>, n
     fly.imitatees.set(imitatees);
 
     await em?.flush();
-
-    const { externalId: _externalId, id: _id, ...mappedResult } = fly;
-    const response: FlyResourceModel = {
-        ...mappedResult,
-        id: fly.externalId,
-        imitatees: fly.imitatees.toArray().map(mapEntityDbModelToResourceModel),
-        types: fly.types.toArray().map(mapEntityDbModelToResourceModel),
-    };
-
-    res.json(response);
+    res.json(fly);
 };
 
 export const deleteFly = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {

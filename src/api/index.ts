@@ -10,15 +10,10 @@ import { ApiErrorResponse } from '../core/types.js';
 
 const router: Router = Router();
 
-router.use((_req: Request, res: Response, next: NextFunction) => {
-    res.setHeader('Access-Control-Expose-Headers', 'Content-Range');
-    next();
-});
-
 router.use('/api/v1/auth', authRoutes);
 router.use('/api/v1/users', userRoutes);
 router.use('/api/v1/flies', flyRoutes);
-router.use('/api/v1/fly-types', flyTypeRoutes);
+router.use('/api/v1/flyTypes', flyTypeRoutes);
 router.use('/api/v1/imitatees', imitateeRoutes);
 
 router.use((_req: Request, res: Response): void => {
@@ -32,9 +27,6 @@ router.use((_req: Request, res: Response): void => {
 router.use((error: ApiException, _req: Request, res: Response<ApiErrorResponse>, _next: NextFunction): void => {
     const status: number = error.status || 500;
     res.status(status);
-    if (error.tokenExpired) {
-        res.set('access-token-expired', 'true');
-    }
     const response = {
         error: true,
         message: error?.message || 'Error',
