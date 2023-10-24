@@ -16,8 +16,9 @@ export class FlyType extends BaseEntity {
     @ManyToMany(() => Fly, (fly) => fly.types)
     flies = new Collection<Fly>(this);
 
-    constructor(name: string) {
+    constructor(name: string, description: string) {
         super();
         this.name = name;
+        this.description = description;
     }
 }

@@ -74,7 +74,7 @@ export const createFlyType = async (req: Request, res: Response<string>, next: N
         return next(error);
     }
 
-    const flyType = new FlyType(req.body.name);
+    const flyType = new FlyType(req.body.name, req.body.description);
 
     await em?.persist(flyType).flush();
     res.json(flyType.externalId);
