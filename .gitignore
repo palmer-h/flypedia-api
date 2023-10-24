@@ -131,3 +131,6 @@ dist
 
 # temp
 /temp
+
+# DS Store
+.DS_Store
