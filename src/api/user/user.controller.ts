@@ -9,8 +9,6 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     const repository = em?.getRepository(User);
     const exists = await repository?.exists(req.body.email);
 
-    console.log(exists);
-
     if (exists) {
         const error = new ApiException({
             message: 'A user with that email already exists',

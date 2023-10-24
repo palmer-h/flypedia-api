@@ -10,11 +10,15 @@ export class FlyType extends BaseEntity {
     @Property({ type: TextType })
     name!: string;
 
+    @Property({ type: TextType })
+    description?: string;
+
     @ManyToMany(() => Fly, (fly) => fly.types)
     flies = new Collection<Fly>(this);
 
-    constructor(name: string) {
+    constructor(name: string, description: string) {
         super();
         this.name = name;
+        this.description = description;
     }
 }
