@@ -35,6 +35,16 @@ export const indexFlies = async (
     const totalItems = results[1];
     const totalPages = Math.ceil(totalItems / pageSize);
 
+    const mappedResults: Array<FlyResourceModel> = flies.map((x) => {
+        const { externalId: _externalId, id: _id, ...entityModel } = x;
+        return {
+            ...entityModel,
+            id: x.externalId,
+            imitatees: x.imitatees.toArray().map(mapEntityDbModelToResourceModel),
+            types: x.types.toArray().map(mapEntityDbModelToResourceModel),
+        };
+    });
+
     res.setHeader('Content-Range', `bytes 0-${totalItems}/*`);
     res.json({
         metadata: {
@@ -43,7 +53,7 @@ export const indexFlies = async (
             pageSize,
             totalPages,
         },
-        results: flies.map((x) => mapEntityDbModelToResourceModel(x)),
+        results: mappedResults,
     });
 };
 
@@ -57,7 +67,15 @@ export const getFly = async (req: Request, res: Response<FlyResourceModel>, next
         return next(error);
     }
 
-    res.json(mapEntityDbModelToResourceModel(result));
+    const { externalId: _externalId, id: _id, ...mappedResult } = result;
+    const response: FlyResourceModel = {
+        ...mappedResult,
+        id: result.externalId,
+        imitatees: result.imitatees.toArray().map(mapEntityDbModelToResourceModel),
+        types: result.types.toArray().map(mapEntityDbModelToResourceModel),
+    };
+
+    res.json(response);
 };
 
 export const createFly = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
@@ -168,7 +186,16 @@ export const updateFly = async (req: Request, res: Response<FlyResourceModel>, n
     fly.imitatees.set(imitatees);
 
     await em?.flush();
-    res.json(mapEntityDbModelToResourceModel(fly));
+
+    const { externalId: _externalId, id: _id, ...mappedResult } = fly;
+    const response: FlyResourceModel = {
+        ...mappedResult,
+        id: fly.externalId,
+        imitatees: fly.imitatees.toArray().map(mapEntityDbModelToResourceModel),
+        types: fly.types.toArray().map(mapEntityDbModelToResourceModel),
+    };
+
+    res.json(response);
 };
 
 export const deleteFly = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {

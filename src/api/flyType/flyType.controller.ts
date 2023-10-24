@@ -74,7 +74,7 @@ export const createFlyType = async (req: Request, res: Response<string>, next: N
         return next(error);
     }
 
-    const flyType = new FlyType(req.body.name);
+    const flyType = new FlyType(req.body.name, req.body.description);
 
     await em?.persist(flyType).flush();
     res.json(flyType.externalId);
@@ -151,6 +151,16 @@ export const indexFliesByType = async (
     const totalItems = results[1];
     const totalPages = Math.ceil(totalItems / pageSize);
 
+    const mappedResults: Array<FlyResourceModel> = flies.map((x) => {
+        const { externalId: _externalId, id: _id, ...entityModel } = x;
+        return {
+            ...entityModel,
+            id: x.externalId,
+            imitatees: x.imitatees.toArray().map(mapEntityDbModelToResourceModel),
+            types: x.types.toArray().map(mapEntityDbModelToResourceModel),
+        };
+    });
+
     res.setHeader('Content-Range', `bytes 0-${totalItems}/*`);
     res.json({
         metadata: {
@@ -159,6 +169,6 @@ export const indexFliesByType = async (
             pageSize,
             totalPages,
         },
-        results: flies.map((x) => mapEntityDbModelToResourceModel(x)),
+        results: mappedResults,
     });
 };
