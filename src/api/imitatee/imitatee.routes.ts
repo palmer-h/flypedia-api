@@ -18,6 +18,6 @@ router.route('/').post(authenticate, validate(validationChains.create), createIm
 router.route('/:id').get(validate(validationChains.get), getImitatee);
 router.route('/:id').put(authenticate, validate(validationChains.update), updateImitatee);
 router.route('/:id').delete(authenticate, validate(validationChains.remove), deleteImitatee);
-router.route('/:id/flies').get(validate(validationChains.indexFlies), indexFliesByImitatee)
+router.route('/:id/flies').get(validate(validationChains.indexFlies), indexFliesByImitatee);
 
 export { router };
