@@ -4,26 +4,24 @@ import { Imitatee } from './imitatee.entity.js';
 import ApiException from '../../core/ApiException.js';
 import { IndexPaginatedEntityResponse } from '../../core/types.js';
 import { Fly } from '../fly/fly.entity.js';
-import { ImitateeResourceModel } from './imitatee.types.js';
-import { mapEntityDbModelToResourceModel } from '../../core/utils.js';
-import { FlyResourceModel } from '../fly/fly.types.js';
 
 export const indexImitatees = async (
     req: Request,
-    res: Response<IndexPaginatedEntityResponse<ImitateeResourceModel>>,
+    res: Response<IndexPaginatedEntityResponse<Imitatee>>,
     next: NextFunction,
 ): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
     const pageNumber = Number(req.query.pageNumber);
     const pageSize = Number(req.query.pageSize);
+    const filterQuery: FilterQuery<Imitatee> = {};
     const findOptions: FindOptions<Imitatee> = {
         offset: (pageNumber - 1) * pageSize,
         limit: pageSize,
         orderBy: { name: 'ASC' },
     };
 
-    const results = await repository?.findAndCount({}, findOptions);
+    const results = await repository?.findAndCount(filterQuery, findOptions);
 
     if (!results) {
         const error = new ApiException({ message: 'Unable to fetch imitatees' });
@@ -34,7 +32,6 @@ export const indexImitatees = async (
     const totalItems = results[1];
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    res.setHeader('Content-Range', `bytes 0-${totalItems}/*`);
     res.json({
         metadata: {
             totalItems,
@@ -42,15 +39,11 @@ export const indexImitatees = async (
             pageSize,
             totalPages,
         },
-        results: imitatees.map((x) => mapEntityDbModelToResourceModel(x)),
+        results: imitatees,
     });
 };
 
-export const getImitatee = async (
-    req: Request,
-    res: Response<ImitateeResourceModel>,
-    next: NextFunction,
-): Promise<void> => {
+export const getImitatee = async (req: Request, res: Response<Imitatee>, next: NextFunction): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
     const result = await repository?.findOne({ externalId: req.params.id });
@@ -60,10 +53,14 @@ export const getImitatee = async (
         return next(error);
     }
 
-    res.json(mapEntityDbModelToResourceModel(result));
+    res.json(result);
 };
 
-export const createImitatee = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
+export const createImitatee = async (
+    req: Request,
+    res: Response<Imitatee['externalId']>,
+    next: NextFunction,
+): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
     const exists = await repository?.exists(req.body.name);
@@ -79,11 +76,7 @@ export const createImitatee = async (req: Request, res: Response<string>, next: 
     res.json(imitatee.externalId);
 };
 
-export const updateImitatee = async (
-    req: Request,
-    res: Response<ImitateeResourceModel>,
-    next: NextFunction,
-): Promise<void> => {
+export const updateImitatee = async (req: Request, res: Response<Imitatee>, next: NextFunction): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
     const imitatee = await repository?.findOne({ externalId: req.params.id });
@@ -97,7 +90,7 @@ export const updateImitatee = async (
     imitatee.description = req.body.description;
 
     await em?.flush();
-    res.json(mapEntityDbModelToResourceModel(imitatee));
+    res.json(imitatee);
 };
 
 export const deleteImitatee = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
@@ -115,7 +108,7 @@ export const deleteImitatee = async (req: Request, res: Response<string>, next: 
 
 export const indexFliesByImitatee = async (
     req: Request,
-    res: Response<IndexPaginatedEntityResponse<FlyResourceModel>>,
+    res: Response<IndexPaginatedEntityResponse<Fly>>,
     next: NextFunction,
 ): Promise<void> => {
     const em = RequestContext.getEntityManager();
@@ -150,17 +143,6 @@ export const indexFliesByImitatee = async (
     const totalItems = results[1];
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    const mappedResults: Array<FlyResourceModel> = flies.map((x) => {
-        const { externalId: _externalId, id: _id, ...entityModel } = x;
-        return {
-            ...entityModel,
-            id: x.externalId,
-            imitatees: x.imitatees.toArray().map(mapEntityDbModelToResourceModel),
-            types: x.types.toArray().map(mapEntityDbModelToResourceModel),
-        };
-    });
-
-    res.setHeader('Content-Range', `bytes 0-${totalItems}/*`);
     res.json({
         metadata: {
             totalItems,
@@ -168,6 +150,6 @@ export const indexFliesByImitatee = async (
             pageSize,
             totalPages,
         },
-        results: mappedResults,
+        results: flies,
     });
 };
