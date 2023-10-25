@@ -56,7 +56,7 @@
     "typescript": "^5.1.6"
   },
   "engines": {
-    "node": "16.x",
+    "node": "20.x",
     "npm": "8.x",
     "yarn": "1.22.x"
   },
