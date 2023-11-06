@@ -1,6 +1,6 @@
 {
   "name": "flypedia-api",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "An API for fly fishing flies and imitatees",
   "main": "server.js",
   "author": "Palmer Hinchliffe",
