@@ -314,7 +314,20 @@
     tsconfig-paths "4.2.0"
     yargs "17.7.2"
 
-"@mikro-orm/core@^5.7.13", "@mikro-orm/core@~5.7.14":
+"@mikro-orm/core@^5.9.5":
+  version "5.9.5"
+  resolved "https://registry.yarnpkg.com/@mikro-orm/core/-/core-5.9.5.tgz#1068c906510c316d3f00a07e3c5437c63f536de5"
+  integrity sha512-8+wqRyB6NsI8Snl+Y1H35h9KtEjmMVL2svmmXDFvmHkYRIEOLr6buZ7kazLupW1+s9UXpmWqOsRq6NEruNY32w==
+  dependencies:
+    acorn-loose "8.3.0"
+    acorn-walk "8.2.0"
+    dotenv "16.3.1"
+    fs-extra "11.1.1"
+    globby "11.1.0"
+    mikro-orm "5.9.5"
+    reflect-metadata "0.1.13"
+
+"@mikro-orm/core@~5.7.14":
   version "5.7.14"
   resolved "https://registry.yarnpkg.com/@mikro-orm/core/-/core-5.7.14.tgz#25298e90a303ca79ba1295b5c63e917128bc87d1"
   integrity sha512-og2TJ4mRdGKF8ok/xSdGNbznm+WFF6VJosJnneulmY4VirRNfDfp7uNPBOinewigS4Q8Ntdirmponx4KrOoMBg==
@@ -2622,6 +2635,11 @@ micromatch@^4.0.4:
   dependencies:
     braces "^3.0.2"
     picomatch "^2.3.1"
+
+mikro-orm@5.9.5:
+  version "5.9.5"
+  resolved "https://registry.yarnpkg.com/mikro-orm/-/mikro-orm-5.9.5.tgz#cdb8974cdb86ac499503f8352bc659ac5d7d6de4"
+  integrity sha512-td+Vb9wf6GFOy699jm3XX5AyJHr+bFpHeNyVsGdR8YnkJIZSmhLdu9AL0vOZAy2YM/IFN/jzFSySD2kObRGR2g==
 
 mikro-orm@~5.7.14:
   version "5.7.14"
