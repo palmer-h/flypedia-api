@@ -7,6 +7,8 @@ import { Imitatee } from '../imitatee/imitatee.entity.js';
 import { FlyType } from '../flyType/flyType.entity.js';
 import { FlyResourceModel } from './fly.types.js';
 import { mapEntityDbModelToResourceModel } from '../../core/utils.js';
+import { userHasPermission } from '../user/user.service.js';
+import { UserPermissionName } from '../userPermission/userPermission.constants.js';
 
 export const indexFlies = async (
     req: Request,
@@ -83,6 +85,17 @@ export const createFly = async (req: Request, res: Response<string>, next: NextF
     const repository = em?.getRepository(Fly);
     const flyTypeRepository = em?.getRepository(FlyType);
     const imitateeRepository = em?.getRepository(Imitatee);
+    const userId = req.body.user.userId;
+    const hasPermission = await userHasPermission(userId, UserPermissionName.CREATE);
+
+    if (!hasPermission) {
+        const error = new ApiException({
+            message: 'You do not have the correct permissions to perform this action',
+            status: 403,
+        });
+        return next(error);
+    }
+
     const exists = await repository?.exists(req.body.name);
 
     if (exists) {
@@ -137,6 +150,17 @@ export const updateFly = async (req: Request, res: Response<FlyResourceModel>, n
     const repository = em?.getRepository(Fly);
     const flyTypeRepository = em?.getRepository(FlyType);
     const imitateeRepository = em?.getRepository(Imitatee);
+    const userId = req.body.user.userId;
+    const hasPermission = await userHasPermission(userId, UserPermissionName.CREATE);
+
+    if (!hasPermission) {
+        const error = new ApiException({
+            message: 'You do not have the correct permissions to perform this action',
+            status: 403,
+        });
+        return next(error);
+    }
+
     const fly = await repository?.findOne({ externalId: req.params.id }, { populate: ['types', 'imitatees'] });
 
     if (!fly) {
@@ -201,6 +225,17 @@ export const updateFly = async (req: Request, res: Response<FlyResourceModel>, n
 export const deleteFly = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Fly);
+    const userId = req.body.user.userId;
+    const hasPermission = await userHasPermission(userId, UserPermissionName.DELETE);
+
+    if (!hasPermission) {
+        const error = new ApiException({
+            message: 'You do not have the correct permissions to perform this action',
+            status: 403,
+        });
+        return next(error);
+    }
+
     const result = await repository?.nativeDelete({ externalId: req.params.id });
 
     if (result === 0) {
