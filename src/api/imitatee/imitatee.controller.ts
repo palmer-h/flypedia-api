@@ -69,9 +69,9 @@ export const createImitatee = async (req: Request, res: Response<string>, next: 
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
     const userId = req.body.user.userId;
-    const hasCreatePermission = await userHasPermission(userId, UserPermissionName.CREATE);
+    const hasPermission = await userHasPermission(userId, UserPermissionName.CREATE);
 
-    if (!hasCreatePermission) {
+    if (!hasPermission) {
         const error = new ApiException({
             message: 'You do not have the correct permissions to perform this action',
             status: 403,
@@ -99,6 +99,17 @@ export const updateImitatee = async (
 ): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
+    const userId = req.body.user.userId;
+    const hasPermission = await userHasPermission(userId, UserPermissionName.CREATE);
+
+    if (!hasPermission) {
+        const error = new ApiException({
+            message: 'You do not have the correct permissions to perform this action',
+            status: 403,
+        });
+        return next(error);
+    }
+
     const imitatee = await repository?.findOne({ externalId: req.params.id });
 
     if (!imitatee) {
@@ -116,6 +127,17 @@ export const updateImitatee = async (
 export const deleteImitatee = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
+    const userId = req.body.user.userId;
+    const hasPermission = await userHasPermission(userId, UserPermissionName.DELETE);
+
+    if (!hasPermission) {
+        const error = new ApiException({
+            message: 'You do not have the correct permissions to perform this action',
+            status: 403,
+        });
+        return next(error);
+    }
+
     const result = await repository?.nativeDelete({ externalId: req.params.id });
 
     if (result === 0) {
