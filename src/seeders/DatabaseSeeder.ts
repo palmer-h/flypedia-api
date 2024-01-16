@@ -3,6 +3,11 @@ import { Seeder } from '@mikro-orm/seeder';
 import { FlyFactory } from './factories/fly.factory.js';
 import { FlyTypeFactory } from './factories/flyType.factory.js';
 import { ImitateeFactory } from './factories/imitatee.factory.js';
+import { User } from '../api/user/user.entity.js';
+import { UserRole } from '../api/userRole/userRole.entity.js';
+import { UserRoleName } from '../api/userRole/userRole.constants.js';
+import { UserPermission as UserPermissionEntity } from '../api/userPermission/userPermission.entity.js';
+import { UserPermissionName } from '../api/userPermission/userPermission.constants.js';
 
 export class DatabaseSeeder extends Seeder {
     async run(em: EntityManager): Promise<void> {
@@ -12,5 +17,26 @@ export class DatabaseSeeder extends Seeder {
                 fly.imitatees.set(new ImitateeFactory(em).make(1));
             })
             .make(100);
+
+        const create = new UserPermissionEntity(UserPermissionName.CREATE);
+        em.persist(create);
+
+        const remove = new UserPermissionEntity(UserPermissionName.DELETE);
+        em.persist(remove);
+
+        const member = new UserRole(UserRoleName.MEMBER);
+        em.persist(member);
+
+        const admin = new UserRole(UserRoleName.ADMIN);
+        admin.permissions.set([create, remove]);
+        em.persist(admin);
+
+        const bob = new User('bobbell@email.com', '$2b$10$xmwNXCPby50VEn6C8gcyaeenV/jH.0Nk9WNBbYqQd3JWtsrIkxhPS');
+        bob.roles.set([member]);
+        em.persist(bob);
+
+        const jeff = new User('jeffjones@email.com', '$2b$10$xmwNXCPby50VEn6C8gcyaeenV/jH.0Nk9WNBbYqQd3JWtsrIkxhPS');
+        bob.roles.set([admin]);
+        em.persist(jeff);
     }
 }

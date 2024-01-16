@@ -1,6 +1,7 @@
-import { Entity, EntityRepositoryType, Property, TextType } from '@mikro-orm/core';
+import { Collection, Entity, EntityRepositoryType, ManyToMany, Property, TextType } from '@mikro-orm/core';
 import { BaseEntity } from '../common/base.entity.js';
 import { UserRepository } from './user.repository.js';
+import { UserRole } from '../userRole/userRole.entity.js';
 
 @Entity({ repository: () => UserRepository })
 export class User extends BaseEntity {
@@ -11,6 +12,9 @@ export class User extends BaseEntity {
 
     @Property({ type: TextType })
     password: string;
+
+    @ManyToMany(() => UserRole)
+    roles = new Collection<UserRole>(this);
 
     constructor(email: string, password: string) {
         super();
