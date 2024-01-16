@@ -7,6 +7,8 @@ import { Fly } from '../fly/fly.entity.js';
 import { ImitateeResourceModel } from './imitatee.types.js';
 import { mapEntityDbModelToResourceModel } from '../../core/utils.js';
 import { FlyResourceModel } from '../fly/fly.types.js';
+import { userHasPermission } from '../user/user.service.js';
+import { UserPermissionName } from '../userPermission/userPermission.constants.js';
 
 export const indexImitatees = async (
     req: Request,
@@ -66,6 +68,17 @@ export const getImitatee = async (
 export const createImitatee = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
+    const userId = req.body.user.userId;
+    const hasCreatePermission = await userHasPermission(userId, UserPermissionName.CREATE);
+
+    if (!hasCreatePermission) {
+        const error = new ApiException({
+            message: 'You do not have the correct permissions to perform this action',
+            status: 403,
+        });
+        return next(error);
+    }
+
     const exists = await repository?.exists(req.body.name);
 
     if (exists) {
