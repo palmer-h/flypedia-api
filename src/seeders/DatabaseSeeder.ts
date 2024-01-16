@@ -36,7 +36,7 @@ export class DatabaseSeeder extends Seeder {
         em.persist(bob);
 
         const jeff = new User('jeffjones@email.com', '$2b$10$xmwNXCPby50VEn6C8gcyaeenV/jH.0Nk9WNBbYqQd3JWtsrIkxhPS');
-        bob.roles.set([admin]);
+        jeff.roles.set([admin]);
         em.persist(jeff);
     }
 }
