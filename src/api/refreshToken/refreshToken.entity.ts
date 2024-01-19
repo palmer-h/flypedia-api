@@ -12,7 +12,7 @@ export class RefreshToken {
     token: string;
 
     @Property()
-    userId: number;
+    userId: string;
 
     @Property()
     validUntil: string;

@@ -1,4 +1,4 @@
-import { FindOptions, RequestContext } from '@mikro-orm/core';
+import { FilterQuery, FindOptions, RequestContext } from '@mikro-orm/core';
 import { Fly } from './fly.entity.js';
 import ApiException from '../../core/ApiException.js';
 import { FlyType } from '../flyType/flyType.entity.js';
@@ -6,6 +6,7 @@ import { Imitatee } from '../imitatee/imitatee.entity.js';
 import type { FlyResourceModel } from './fly.types.js';
 import { mapEntityDbModelToResourceModel } from '../../core/utils.js';
 import type { IndexPaginatedEntityResponse, PaginatedEntityMetadata } from '../../core/types.js';
+import { User } from '../user/user.entity.js';
 
 export const indexFlies = async (
     pageNumber: PaginatedEntityMetadata['pageNumber'],
@@ -202,4 +203,54 @@ export const deleteFly = async (id: FlyResourceModel['id']): Promise<boolean> =>
     }
 
     return true;
+};
+
+export const indexFliesByUserFavourites = async (data: any): Promise<IndexPaginatedEntityResponse<FlyResourceModel>> => {
+    const em = RequestContext.getEntityManager();
+    const userRepository = em?.getRepository(User);
+    const flyRepository = em?.getRepository(Fly);
+
+    const user = await userRepository?.findOne({ externalId: data.id });
+
+    if (!user) {
+        throw new ApiException({ message: `Cannot find user using id: ${data.id}`, status: 409 });
+    }
+
+    const filterQuery: FilterQuery<Fly> = { users: user.id };
+    const findOptions: FindOptions<Fly> = {
+        offset: (data.pageNumber - 1) * data.pageSize,
+        limit: data.pageSize,
+        populate: ['types', 'imitatees'] as never,
+        orderBy: { name: 'ASC' },
+    };
+
+    const results = await flyRepository?.findAndCount(filterQuery, findOptions);
+
+    if (!results) {
+        throw new ApiException({ message: 'Unable to fetch flies' });
+    }
+
+    const flies = results[0];
+    const totalItems = results[1];
+    const totalPages = Math.ceil(totalItems / data.pageSize);
+
+    const mappedResults: Array<FlyResourceModel> = flies.map((x) => {
+        const { externalId: _externalId, id: _id, ...entityModel } = x;
+        return {
+            ...entityModel,
+            id: x.externalId,
+            imitatees: x.imitatees.toArray().map(mapEntityDbModelToResourceModel),
+            types: x.types.toArray().map(mapEntityDbModelToResourceModel),
+        };
+    });
+
+    return {
+        metadata: {
+            totalItems,
+            pageNumber: data.pageNumber,
+            pageSize: data.pageSize,
+            totalPages,
+        },
+        results: mappedResults,
+    };
 };

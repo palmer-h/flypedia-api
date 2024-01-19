@@ -38,7 +38,7 @@ export const createFlyType = async (
     res: Response<FlyTypeResourceModel['id']>,
     next: NextFunction,
 ): Promise<void> => {
-    const userId = req.body.user.userId;
+    const userId = req.body.user.externalId;
 
     const hasPermission = await userHasPermission(userId, UserPermissionName.CREATE);
 
@@ -63,7 +63,7 @@ export const updateFlyType = async (
     res: Response<FlyTypeResourceModel>,
     next: NextFunction,
 ): Promise<void> => {
-    const userId = req.body.user.userId;
+    const userId = req.body.user.externalId;
     const hasPermission = await userHasPermission(userId, UserPermissionName.CREATE);
 
     if (!hasPermission) {
@@ -83,7 +83,7 @@ export const updateFlyType = async (
 };
 
 export const deleteFlyType = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
-    const userId = req.body.user.userId;
+    const userId = req.body.user.externalId;
     const hasPermission = await userHasPermission(userId, UserPermissionName.DELETE);
 
     if (!hasPermission) {

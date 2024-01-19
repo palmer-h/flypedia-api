@@ -23,13 +23,13 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
         return next(error);
     }
 
-    const accessToken = authService.createUserAccessToken(user.id);
-    const refreshToken = authService.createRefreshTokenEntity(user.id);
+    const accessToken = authService.createUserAccessToken(user.externalId);
+    const refreshToken = authService.createRefreshTokenEntity(user.externalId);
 
     await em?.persist(refreshToken).flush();
 
     res.json({
-        userId: user.id,
+        userId: user.externalId,
         accessToken,
         email: user.email,
         refreshToken: refreshToken.token,
@@ -53,11 +53,11 @@ export const refreshAccessToken = async (req: Request, res: Response, next: Next
         userId: req.body.userId,
     });
 
-    const refreshToken = authService.createRefreshTokenEntity(user.id);
+    const refreshToken = authService.createRefreshTokenEntity(user.externalId);
 
     await em?.persist(refreshToken).flush();
 
-    const accessToken = authService.createUserAccessToken(user.id);
+    const accessToken = authService.createUserAccessToken(user.externalId);
 
     res.json({
         refreshToken: refreshToken.token,

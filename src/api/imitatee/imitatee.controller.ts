@@ -38,7 +38,7 @@ export const createImitatee = async (
     res: Response<ImitateeResourceModel['id']>,
     next: NextFunction,
 ): Promise<void> => {
-    const userId = req.body.user.userId;
+    const userId = req.body.user.externalId;
     const hasPermission = await userHasPermission(userId, UserPermissionName.CREATE);
 
     if (!hasPermission) {
@@ -62,7 +62,7 @@ export const updateImitatee = async (
     res: Response<ImitateeResourceModel>,
     next: NextFunction,
 ): Promise<void> => {
-    const userId = req.body.user.userId;
+    const userId = req.body.user.externalId;
     const hasPermission = await userHasPermission(userId, UserPermissionName.CREATE);
 
     if (!hasPermission) {
@@ -86,7 +86,7 @@ export const updateImitatee = async (
 };
 
 export const deleteImitatee = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
-    const userId = req.body.user.userId;
+    const userId = req.body.user.externalId;
     const hasPermission = await userHasPermission(userId, UserPermissionName.DELETE);
 
     if (!hasPermission) {

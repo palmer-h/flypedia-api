@@ -29,7 +29,7 @@ export const getFly = async (req: Request, res: Response<FlyResourceModel>, next
 };
 
 export const createFly = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
-    const userId = req.body.user.userId;
+    const userId = req.body.user.externalId;
 
     const hasPermission = await userHasPermission(userId, UserPermissionName.CREATE);
 
@@ -50,7 +50,7 @@ export const createFly = async (req: Request, res: Response<string>, next: NextF
 };
 
 export const updateFly = async (req: Request, res: Response<FlyResourceModel>, next: NextFunction): Promise<void> => {
-    const userId = req.body.user.userId;
+    const userId = req.body.user.externalId;
     const hasPermission = await userHasPermission(userId, UserPermissionName.CREATE);
 
     if (!hasPermission) {
@@ -70,7 +70,7 @@ export const updateFly = async (req: Request, res: Response<FlyResourceModel>, n
 };
 
 export const deleteFly = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
-    const userId = req.body.user.userId;
+    const userId = req.body.user.externalId;
     const hasPermission = await userHasPermission(userId, UserPermissionName.DELETE);
 
     if (!hasPermission) {

@@ -2,6 +2,7 @@ import { Collection, Entity, EntityRepositoryType, ManyToMany, Property, TextTyp
 import { BaseEntity } from '../common/base.entity.js';
 import { UserRepository } from './user.repository.js';
 import { UserRole } from '../userRole/userRole.entity.js';
+import { Fly } from '../fly/fly.entity.js';
 
 @Entity({ repository: () => UserRepository })
 export class User extends BaseEntity {
@@ -15,6 +16,9 @@ export class User extends BaseEntity {
 
     @ManyToMany(() => UserRole)
     roles = new Collection<UserRole>(this);
+
+    @ManyToMany(() => Fly)
+    favouriteFlies = new Collection<Fly>(this);
 
     constructor(email: string, password: string) {
         super();
