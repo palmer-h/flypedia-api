@@ -8,7 +8,7 @@ const router = Router();
 
 router.route('/').post(validate(validationChains.create), createUser);
 router.route('/:id/flies').get(authenticate, validate(validationChains.indexFlies), indexFlies);
-router.route('/:id/:flies/:flyId').post(authenticate, validate(validationChains.getFly), addFavouriteFly);
-router.route('/:id/:flies/:flyId').delete(authenticate, validate(validationChains.deleteFly), removeFavouriteFly);
+router.route('/:id/:flies/:flyId').post(authenticate, validate(validationChains.addOrRemoveFly), addFavouriteFly);
+router.route('/:id/:flies/:flyId').delete(authenticate, validate(validationChains.addOrRemoveFly), removeFavouriteFly);
 
 export { router };
