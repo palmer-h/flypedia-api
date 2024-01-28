@@ -25,9 +25,9 @@ export const indexImitatees = async (
         throw new ApiException({ message: 'Unable to fetch imitatees' });
     }
 
-    const imitatees = results[0];
-    const totalItems = results[1];
-    const totalPages = Math.ceil(totalItems / pageSize);
+    const imitatees: Array<Imitatee> = results[0];
+    const totalItems: number = results[1] || 0;
+    const totalPages: number = totalItems <= pageSize ? 1 : Math.ceil(totalItems / pageSize);
 
     return {
         metadata: {
@@ -36,7 +36,7 @@ export const indexImitatees = async (
             pageSize,
             totalPages,
         },
-        results: imitatees.map((x) => mapEntityDbModelToResourceModel(x)),
+        results: imitatees.map(x => mapEntityDbModelToResourceModel(x)),
     };
 };
 
@@ -44,12 +44,16 @@ export const getImitatee = async (id: ImitateeResourceModel['id']): Promise<Imit
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Imitatee);
 
-    const result = await repository?.findOne({ externalId: id });
+    const result = await repository?.findOne({ externalId: id }, { populate: ['flies'] });
     if (!result) {
         throw new ApiException({ message: `Cannot find imitatee using id: ${id}`, status: 409 });
     }
 
-    return mapEntityDbModelToResourceModel(result);
+    return {
+        ...result,
+        id: result.externalId,
+        flies: result.flies.toArray().map(mapEntityDbModelToResourceModel) as any,
+    };
 };
 
 export const createImitatee = async (
@@ -125,9 +129,9 @@ export const indexFliesByImitatee = async (data: any): Promise<IndexPaginatedEnt
         throw new ApiException({ message: 'Unable to fetch flies' });
     }
 
-    const flies = results[0];
-    const totalItems = results[1];
-    const totalPages = Math.ceil(totalItems / data.pageSize);
+    const flies: Array<Fly> = results[0];
+    const totalItems: number = results[1] || 0;
+    const totalPages: number = totalItems <= data.pageSize ? 1 : Math.ceil(totalItems / data.pageSize);
 
     const mappedResults: Array<FlyResourceModel> = flies.map((x: Fly) => {
         const { externalId: _externalId, id: _id, ...entityModel } = x;

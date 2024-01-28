@@ -13,7 +13,7 @@ import { Fly } from '../api/fly/fly.entity.js';
 export class DatabaseSeeder extends Seeder {
     async run(em: EntityManager): Promise<void> {
         new FlyFactory(em)
-            .each((fly) => {
+            .each(fly => {
                 fly.types.set(new FlyTypeFactory(em).make(1));
                 fly.imitatees.set(new ImitateeFactory(em).make(1));
             })

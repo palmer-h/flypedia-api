@@ -22,7 +22,7 @@ export const getUser = async (externalId: User['externalId']): Promise<UserResou
     return {
         id: user.externalId,
         email: user.email,
-        favouriteFlies: user.favouriteFlies.toArray(),
+        favouriteFlies: user.favouriteFlies.toArray() as any,
     };
 };
 
@@ -43,7 +43,7 @@ export const createUser = async (email: User['email'], password: User['password'
 
     await em?.persist(newUser).flush();
 
-    const accessToken = authService.createUserAccessToken(newUser.externalId);
+    const accessToken = authService.signJwt(newUser.externalId);
     const refreshTokenEntity = authService.createRefreshTokenEntity(newUser.externalId);
 
     await em?.persist(refreshTokenEntity).flush();

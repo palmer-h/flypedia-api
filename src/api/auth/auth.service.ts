@@ -17,7 +17,7 @@ export const generateBcryptHash = async (password: string): Promise<string> => {
 export const verifyPassword = async (password: string, hash: string): Promise<boolean> =>
     await bcrypt.compare(password, hash);
 
-export const createUserAccessToken = (userExternalId: string): string =>
+export const signJwt = (userExternalId: string): string =>
     jwt.sign({ externalId: userExternalId }, process.env.ACCESS_TOKEN_SECRET as string, {
         expiresIn: `${ACCESS_TOKEN_EXPIRY_SECONDS}s`,
     });

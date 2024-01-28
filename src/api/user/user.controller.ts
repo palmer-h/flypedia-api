@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import * as userService from './user.service.js';
-import { CreateUserApiResponse } from './user.types.js';
+import { CreateUserApiResponse, CreateUserBindingModel } from './user.types.js';
 import { IndexPaginatedEntityResponse } from '../../core/types.js';
 import { FlyResourceModel } from '../fly/fly.types.js';
 import ApiException from '../../core/ApiException.js';
@@ -8,7 +8,7 @@ import * as flyService from '../fly/fly.service.js';
 import { UserRoleName } from '../userRole/userRole.constants.js';
 
 export const createUser = async (
-    req: Request,
+    req: Request<CreateUserBindingModel>,
     res: Response<CreateUserApiResponse>,
     next: NextFunction,
 ): Promise<void> => {
@@ -56,7 +56,11 @@ export const indexFlies = async (
     }
 };
 
-export const addFavouriteFly = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
+export const addFavouriteFly = async (
+    req: Request,
+    res: Response<{ message: string }>,
+    next: NextFunction,
+): Promise<void> => {
     const accessTokenUserId = req.body.user.externalId;
     const reqUserId = req.params.id;
 
@@ -80,7 +84,7 @@ export const addFavouriteFly = async (req: Request, res: Response<string>, next:
         const result = await userService.addFlyToUserFavourites(accessTokenUserId, req.params.flyId);
 
         if (result) {
-            res.send('OK');
+            res.send({ message: 'OK' });
         } else {
             const error = new ApiException({
                 message: 'Error adding fly to user favourites',
@@ -93,7 +97,11 @@ export const addFavouriteFly = async (req: Request, res: Response<string>, next:
     }
 };
 
-export const removeFavouriteFly = async (req: Request, res: Response<string>, next: NextFunction): Promise<void> => {
+export const removeFavouriteFly = async (
+    req: Request,
+    res: Response<{ message: string }>,
+    next: NextFunction,
+): Promise<void> => {
     const accessTokenUserId = req.body.user.externalId;
     const reqUserId = req.params.id;
 
@@ -112,7 +120,7 @@ export const removeFavouriteFly = async (req: Request, res: Response<string>, ne
         const result = await userService.removeFlyFromUserFavourites(accessTokenUserId, req.params.flyId);
 
         if (result) {
-            res.send('OK');
+            res.send({ message: 'OK' });
         } else {
             const error = new ApiException({
                 message: 'Error removing fly to user favourites',

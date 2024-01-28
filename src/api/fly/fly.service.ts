@@ -27,9 +27,9 @@ export const indexFlies = async (
         throw new ApiException({ message: 'Unable to fetch flies' });
     }
 
-    const flies = results[0];
-    const totalItems = results[1];
-    const totalPages = Math.ceil(totalItems / Number(pageSize));
+    const flies: Array<Fly> = results[0];
+    const totalItems = results[1] || 0;
+    const totalPages: number = totalItems <= Number(pageSize) ? 1 : Math.ceil(totalItems / Number(pageSize));
 
     const mappedResults: Array<FlyResourceModel> = flies.map((x) => {
         const { externalId: _externalId, id: _id, ...entityModel } = x;
@@ -230,11 +230,11 @@ export const indexFliesByUserFavourites = async (data: any): Promise<IndexPagina
         throw new ApiException({ message: 'Unable to fetch flies' });
     }
 
-    const flies = results[0];
-    const totalItems = results[1];
-    const totalPages = Math.ceil(totalItems / data.pageSize);
+    const flies: Array<Fly> = results[0];
+    const totalItems: number = results[1] || 0;
+    const totalPages: number = totalItems <= data.pageSize ? 1 : Math.ceil(totalItems / data.pageSize);
 
-    const mappedResults: Array<FlyResourceModel> = flies.map((x) => {
+    const mappedResults: Array<FlyResourceModel> = flies.map(x => {
         const { externalId: _externalId, id: _id, ...entityModel } = x;
         return {
             ...entityModel,
