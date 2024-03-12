@@ -7,6 +7,7 @@ export class FlyTypeFactory extends Factory<FlyType> {
     definition(faker: Faker): Partial<FlyType> {
         return {
             name: faker.lorem.word(),
+            description: faker.lorem.paragraph(),
         };
     }
 }

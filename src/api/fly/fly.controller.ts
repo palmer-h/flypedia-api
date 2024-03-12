@@ -13,6 +13,7 @@ export const indexFlies = async (
 ): Promise<void> => {
     try {
         const result = await flyService.indexFlies(Number(req.query.pageNumber), Number(req.query.pageSize));
+        res.set('Content-Range', `flies 0-${result.results.length}/${result.metadata.totalItems}`);
         res.json(result);
     } catch (e) {
         next(e);
@@ -82,7 +83,7 @@ export const deleteFly = async (req: Request, res: Response<string>, next: NextF
     }
 
     try {
-        await flyService.deleteFly(req.body.id);
+        await flyService.deleteFly(req.params.id);
         res.json('OK');
     } catch (e) {
         next(e);

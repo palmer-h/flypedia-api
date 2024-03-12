@@ -14,6 +14,7 @@ export const indexImitatees = async (
 ): Promise<void> => {
     try {
         const result = await imitateeService.indexImitatees(Number(req.query.pageNumber), Number(req.query.pageSize));
+        res.set('Content-Range', `flies 0-${result.results.length}/${result.metadata.totalItems}`);
         res.json(result);
     } catch (e) {
         next(e);
