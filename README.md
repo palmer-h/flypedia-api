@@ -2,6 +2,8 @@
 
 An API for fly fishing flies
 
+https://flypedia-api-a2cab70bc07d.herokuapp.com/api/v1/
+
 ## Usage
 
 <details>
@@ -141,6 +143,15 @@ An API for fly fishing flies
   GET /fly-types
   ```
 
+  Supported attributes:
+
+  | Attribute                | Type     | Required | Description            |
+  |--------------------------|----------|----------|------------------------|
+  | `pageSize`               | number   | No       | Number of items to get |
+  | `pageNumber`             | number   | No       | Page to get            |
+
+  If pagination params (pageSize, pageNumber) are not provided, the total number of items are returned.
+
   If successful, returns:
 
   | Attribute                | Type            | Description           |
@@ -245,7 +256,7 @@ An API for fly fishing flies
   Example request:
 
   ```shell
-  curl --url "http://localhost:3000/api/v1/fly-types/744902b8-ed8b-4a11-b173-e1dae33b6ddf/flies?pageNumber=1&pageSize=20"
+  curl --url "http://flypedia-api-a2cab70bc07d.herokuapp.com/api/v1/fly-types/744902b8-ed8b-4a11-b173-e1dae33b6ddf/flies?pageNumber=1&pageSize=20"
   ```
 
   Example response:
@@ -302,8 +313,10 @@ An API for fly fishing flies
 
   | Attribute                | Type     | Required | Description            |
   |--------------------------|----------|----------|------------------------|
-  | `pageSize`               | number   | Yes      | Number of items to get |
-  | `pageNumber`             | number   | Yes      | Page to get            |
+  | `pageSize`               | number   | No       | Number of items to get |
+  | `pageNumber`             | number   | No       | Page to get            |
+
+  If pagination params (pageSize, pageNumber) are not provided, the total number of items are returned.
 
   If successful, returns:
 
@@ -315,7 +328,7 @@ An API for fly fishing flies
   Example request:
 
   ```shell
-  curl --url "https://flypedia-api-a2cab70bc07d.herokuapp.com/api/v1/imitatees?pageNumber=1&pageSize=10"
+  curl --url "https://flypedia-api-a2cab70bc07d.herokuapp.com/api/v1/imitatees"
   ```
 
   Example response:
