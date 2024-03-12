@@ -6,6 +6,6 @@ import validate from '../../middleware/validate.js';
 const router = Router();
 
 router.route('/authenticate').post(validate(validationChains.authenticate), authenticate);
-router.route('/refresh').put(validate(validationChains.refreshAccessToken), refreshAccessToken);
+router.route('/refresh').post(validate(validationChains.refreshAccessToken), refreshAccessToken);
 
 export { router };

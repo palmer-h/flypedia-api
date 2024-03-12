@@ -13,7 +13,7 @@ import authenticate from '../../middleware/authenticate.js';
 
 const router: Router = Router();
 
-router.route('/').get(validate(validationChains.index), indexFlyTypes);
+router.route('/').get(indexFlyTypes);
 router.route('/').post(authenticate, validate(validationChains.create), createFlyType);
 router.route('/:id').get(validate(validationChains.get), getFlyType);
 router.route('/:id').put(authenticate, validate(validationChains.update), updateFlyType);

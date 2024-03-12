@@ -4,12 +4,12 @@ import { RefreshToken } from './refreshToken.entity.js';
 
 export class RefreshTokenRepository extends EntityRepository<RefreshToken> {
     async isValid(userId: string, token: string): Promise<boolean> {
-        const result = await this.qb().where({ userId, token });
+        const results = await this.qb().where({ userId, token });
 
-        if (!result) {
+        if (!results?.length) {
             return false;
         }
 
-        return isBefore(new Date(), new Date(result.validUntil));
+        return isBefore(new Date(), new Date(results[0].validUntil));
     }
 }

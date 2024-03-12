@@ -17,14 +17,14 @@ export const generateBcryptHash = async (password: string): Promise<string> => {
 export const verifyPassword = async (password: string, hash: string): Promise<boolean> =>
     await bcrypt.compare(password, hash);
 
-export const createUserAccessToken = (userId: number): string =>
-    jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET as string, {
+export const signJwt = (userExternalId: string): string =>
+    jwt.sign({ externalId: userExternalId }, process.env.ACCESS_TOKEN_SECRET as string, {
         expiresIn: `${ACCESS_TOKEN_EXPIRY_SECONDS}s`,
     });
 
-export const createRefreshTokenEntity = (userId: number): RefreshToken =>
+export const createRefreshTokenEntity = (userExternalId: string): RefreshToken =>
     new RefreshToken({
-        userId,
+        userId: userExternalId,
         token: _rand64ByteHex(),
         validUntil: formatISO(addDays(new Date(), REFRESH_TOKEN_EXPIRY_DAYS)),
     });

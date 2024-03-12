@@ -3,6 +3,7 @@ import { FlyType } from '../flyType/flyType.entity.js';
 import { Imitatee } from '../imitatee/imitatee.entity.js';
 import { BaseEntity } from '../common/base.entity.js';
 import { FlyRepository } from './fly.repository.js';
+import { User } from '../user/user.entity.js';
 
 @Entity({ repository: () => FlyRepository })
 export class Fly extends BaseEntity {
@@ -19,6 +20,9 @@ export class Fly extends BaseEntity {
 
     @ManyToMany({ entity: () => Imitatee, inversedBy: 'flies' })
     imitatees = new Collection<Imitatee>(this);
+
+    @ManyToMany(() => User, (user) => user.favouriteFlies)
+    users = new Collection<User>(this);
 
     constructor(name: string, description?: string) {
         super();

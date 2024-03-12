@@ -7,15 +7,14 @@ dotenv.config();
 
 export default (req: Request, _res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];
+    const error = new ApiException({ message: 'Invalid access token', status: 401 });
 
     if (!authHeader?.startsWith('Bearer ')) {
-        const error = new ApiException({ message: 'Invalid access token', status: 401 });
         return next(error);
     }
 
     const token = authHeader.substring(7, authHeader.length);
     if (!token?.length) {
-        const error = new ApiException({ message: 'Invalid access token', status: 401 });
         next(error);
     }
 
@@ -35,7 +34,7 @@ export default (req: Request, _res: Response, next: NextFunction) => {
                 });
                 next(exception);
             }
-            req.body.username = jwt;
+            req.body.user = jwt;
             next();
         },
     );
