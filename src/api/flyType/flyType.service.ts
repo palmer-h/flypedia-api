@@ -73,7 +73,11 @@ export const createFlyType = async (
     return flyType.externalId;
 };
 
-export const updateFlyType = async (data: any): Promise<FlyTypeResourceModel> => {
+export const updateFlyType = async (data: {
+    id: FlyTypeResourceModel['id'];
+    name: FlyTypeResourceModel['name'];
+    description: FlyTypeResourceModel['description'];
+}): Promise<FlyTypeResourceModel> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(FlyType);
 

@@ -14,6 +14,7 @@ export const indexFlyTypes = async (
 ): Promise<void> => {
     try {
         const result = await flyTypeService.indexFlyTypes(Number(req.query.pageNumber), Number(req.query.pageSize));
+        res.set('Content-Range', `flies 0-${result.results.length}/${result.metadata.totalItems}`);
         res.json(result);
     } catch (e) {
         next(e);
@@ -95,7 +96,7 @@ export const deleteFlyType = async (req: Request, res: Response<string>, next: N
     }
 
     try {
-        await flyTypeService.deleteFlyType(req.body.id);
+        await flyTypeService.deleteFlyType(req.params.id);
         res.json('OK');
     } catch (e) {
         next(e);

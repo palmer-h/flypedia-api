@@ -103,7 +103,7 @@ export const pageSize = (query: ValidationChain): ValidationChain => {
 export const listOfIds = (query: ValidationChain, subject?: string): ValidationChain => {
     return query
         .exists()
-        .withMessage(`${subject ? subject + ' ids' : 'Ids'} are required`)
+        .withMessage(`${subject ? subject + ' ' : ''}ID's are required`)
         .isArray()
-        .withMessage(`${subject ? subject + ' ids' : 'Ids'} must be an array`);
+        .withMessage(`${subject ? subject + ' ' : ''}ID's must be an array`);
 };
