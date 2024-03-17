@@ -3,7 +3,7 @@ import { Fly } from './fly.entity.js';
 import ApiException from '../../core/ApiException.js';
 import { FlyType } from '../flyType/flyType.entity.js';
 import { Imitatee } from '../imitatee/imitatee.entity.js';
-import type { FlyResourceModel } from './fly.types.js';
+import type { FlyBindingModel, FlyResourceModel } from './fly.types.js';
 import { mapEntityDbModelToResourceModel } from '../../core/utils.js';
 import type { IndexPaginatedEntityResponse, PaginatedEntityMetadata } from '../../core/types.js';
 import { User } from '../user/user.entity.js';
@@ -53,7 +53,7 @@ export const indexFlies = async (
     };
 };
 
-export const getFly = async (id: FlyResourceModel['id']): Promise<FlyResourceModel> => {
+export const getFly = async (id: FlyBindingModel['id']): Promise<FlyResourceModel> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Fly);
     const result = await repository?.findOne({ externalId: id }, { populate: ['types', 'imitatees'] });
@@ -73,7 +73,7 @@ export const getFly = async (id: FlyResourceModel['id']): Promise<FlyResourceMod
     return response;
 };
 
-export const createFly = async (data: any): Promise<FlyResourceModel['id']> => {
+export const createFly = async (data: Omit<FlyBindingModel, 'id'>): Promise<FlyResourceModel['id']> => {
     const em = RequestContext.getEntityManager();
 
     const repository = em?.getRepository(Fly);
@@ -128,7 +128,7 @@ export const createFly = async (data: any): Promise<FlyResourceModel['id']> => {
     return newFly.externalId;
 };
 
-export const updateFly = async (data: any): Promise<FlyResourceModel> => {
+export const updateFly = async (data: FlyBindingModel): Promise<FlyResourceModel> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Fly);
     const flyTypeRepository = em?.getRepository(FlyType);
@@ -137,7 +137,7 @@ export const updateFly = async (data: any): Promise<FlyResourceModel> => {
     const fly = await repository?.findOne({ externalId: data.id }, { populate: ['types', 'imitatees'] });
 
     if (!fly) {
-        throw new ApiException({ message: `Cannot find fly using id: ${data.id}`, status: 409 });
+        throw new ApiException({ message: `Cannot find fly using id: ${data.id}`, status: 404 });
     }
 
     const { name, description } = data;
@@ -192,7 +192,7 @@ export const updateFly = async (data: any): Promise<FlyResourceModel> => {
     return response;
 };
 
-export const deleteFly = async (id: FlyResourceModel['id']): Promise<boolean> => {
+export const deleteFly = async (id: FlyBindingModel['id']): Promise<boolean> => {
     const em = RequestContext.getEntityManager();
     const repository = em?.getRepository(Fly);
 
@@ -205,7 +205,11 @@ export const deleteFly = async (id: FlyResourceModel['id']): Promise<boolean> =>
     return true;
 };
 
-export const indexFliesByUserFavourites = async (data: any): Promise<IndexPaginatedEntityResponse<FlyResourceModel>> => {
+export const indexFliesByUserFavourites = async (data: {
+    id: string;
+    pageNumber: PaginatedEntityMetadata['pageNumber'];
+    pageSize: PaginatedEntityMetadata['pageSize'];
+}): Promise<IndexPaginatedEntityResponse<FlyResourceModel>> => {
     const em = RequestContext.getEntityManager();
     const userRepository = em?.getRepository(User);
     const flyRepository = em?.getRepository(Fly);
