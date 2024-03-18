@@ -20,7 +20,7 @@
     "@mikro-orm/cli": "^5.7.13",
     "@mikro-orm/core": "^5.7.13",
     "@mikro-orm/postgresql": "^5.7.13",
-    "@mikro-orm/reflection": "^5.7.13",
+    "@mikro-orm/reflection": "^6.0.0",
     "@mikro-orm/seeder": "^5.7.13",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
