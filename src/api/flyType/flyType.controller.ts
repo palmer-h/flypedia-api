@@ -76,7 +76,11 @@ export const updateFlyType = async (
     }
 
     try {
-        const fly = await flyTypeService.updateFlyType(req.body);
+        const fly = await flyTypeService.updateFlyType({
+            id: req.params.id,
+            name: req.body.name,
+            description: req.body.description,
+        });
         res.json(fly);
     } catch (e) {
         next(e);
