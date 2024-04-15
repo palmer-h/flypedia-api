@@ -9,12 +9,12 @@ import bodyParser from 'body-parser';
 import limiter from './core/rateLimiter.js';
 import router from './api/index.js';
 import mikroOrmOptions from '../mikro-orm.config.js';
+import corsOptions from './core/corsOptions.js';
 
 const app = express();
 const db = await MikroORM.init<PostgreSqlDriver>(mikroOrmOptions);
 
-app.use(cors());
-app.options('*', cors());
+app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(helmet());
