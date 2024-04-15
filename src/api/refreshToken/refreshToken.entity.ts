@@ -1,6 +1,5 @@
 import { Entity, EntityRepositoryType, PrimaryKey, Property } from '@mikro-orm/core';
 import { RefreshTokenRepository } from './refreshToken.repository.js';
-import { CreateRefreshTokenData } from './refreshToken.types.js';
 
 @Entity({ repository: () => RefreshTokenRepository })
 export class RefreshToken {
@@ -18,7 +17,7 @@ export class RefreshToken {
     @Property()
     validUntil: string;
 
-    constructor(data: CreateRefreshTokenData) {
+    constructor(data: any) {
         this.token = data.token;
         this.userId = data.userId;
         this.validUntil = data.validUntil;
